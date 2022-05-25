@@ -1,0 +1,1 @@
+#### [Google Doc With Strategy For 19 Classic](https://docs.google.com/document/d/1SEvdDoruHqGw46opk5SyPYlK365e2zllwaeMZOYTh2A/edit?usp=sharing)
