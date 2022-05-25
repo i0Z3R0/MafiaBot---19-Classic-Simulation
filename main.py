@@ -91,6 +91,7 @@ def newnight():
 	print(f'Victim: {victim.role}')
 
 	# Doctor
+	# test
 	doctor = players[3]
 	if doctor.status != "Dead":
 		print("Doctor Alive")
