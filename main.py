@@ -2,6 +2,31 @@ import os
 import random
 from colorama import *
 
+
+def main():
+	games = []	
+	
+	reset()
+	
+	
+	for i in range(15):
+		newnight()
+		wincheck()
+		newday()
+		wincheck()
+		if verbose:
+			input("Press Enter to Progress")
+			os.system('clear')
+	
+	os._exit(1)
+
+class Game:
+	def __init__(self, winner, nights, vilalive, mafalive):
+		self.winner = winner
+		self.nights = nights
+		self.vilalive = vilalive
+		self.mafalive = mafalive
+
 class Player:
 	def __init__(self, role, side, status, saved):
 		self.role = role
@@ -20,7 +45,7 @@ def reset():
 	players = []
 	nights = 1
 	detmafia = "N/A"
-	verbose = False
+	verbose = True
 
 	players.append(Player("Godfather", "Mafia", "Alive", False))
 	players.append(Player("Mafia", "Mafia", "Alive", False))
@@ -37,12 +62,12 @@ def status():
 	vilcount = 0
 	mafcount = 0
 	for i in players:
-		if i.status == "Alive" or i.status == "Saved":
+		if i.status != "Dead":
 			if i.side == "Mafia":
 				mafcount += 1
 			else:
 				vilcount += 1
-	statustext = f"""Nights Passed: {nights}
+	statustext = Fore.WHITE + f"""Nights Passed: {nights}
 Villagers Alive: {vilcount}
 Mafias Alive: {mafcount}
 """
@@ -57,23 +82,23 @@ def wincheck():
 	mafcount = current["mafcount"]
 	vilcount = current["vilcount"]
 	if mafcount >= vilcount:
-		print("Mafias Win!\n")
+		print(Fore.RED + "Mafias Win!\n")
 		print(current["text"])
 		os._exit(1)
 	elif mafcount == 0:
-		print("Villagers Win!\n")
+		print(Fore.GREEN + "Villagers Win!\n")
 		print(current["text"])
 		os._exit(1)
 	else:
-		print("No Winners Yet!\n")
-		print(current["text"])
+		print(Fore.YELLOW + "No Winners Yet!\n")
+		#print(current["text"])
 			
 	
 
 def newnight():
 	global nights
 	global detmafia
-	print(f'Night {nights}')
+	print(Fore.WHITE + f'Night {nights}')
 	nights += 1
 	
 	# Mafia
@@ -88,42 +113,41 @@ def newnight():
 		victim = players[random.randint(2,18)]
 		while victim.status == "Dead":
 			victim = players[random.randint(2,18)]
-	print(f'Victim: {victim.role}')
+	print(Fore.RED + f'Victim: {victim.role}\n')
 
 	# Doctor
-	# test
 	doctor = players[3]
 	if doctor.status != "Dead":
-		print("Doctor Alive")
+		print(Fore.GREEN + "Doctor Alive")
 		saved = players[random.randint(0,18)]
 		while saved.status != "Alive" and not saved.saved:
 			saved = players[random.randint(0,18)]
-		print(f'Saving: {saved.role}')
+		print(Fore.GREEN + f'Saving: {saved.role}')
 		if victim.role == saved.role:
 			victim.saved = True
-			print("Victim Was Saved!")
+			print(Fore.GREEN + "Victim Was Saved!")
 		else:
 			victim.status = "Dead"
-			print(f'Killed {victim.role}')
+			print(Fore.RED + f'Killed {victim.role}')
 	else:
-		print("Doctor Dead")
+		print(Fore.RED + "Doctor Dead")
 	print("\n")
 
 	# Detective
 	det = players[2]
 	if det.status != "Dead":
-		print("Detective Alive")
+		print(Fore.GREEN + "Detective Alive")
 		checked = players[random.randint(0,18)]
 		while checked.status == "Dead":
 			checked = players[random.randint(0,18)]
 		if checked.side == "Mafia":
 			detmafia = checked
-			print(f'Mafia Found: {checked.role}')
+			print(Fore.GREEN + f'Mafia Found: {checked.role}')
 		else:
-			print("Mafia Not Found")
+			print(Fore.RED + "Mafia Not Found")
 			detmafia = "N/A"
 	else:
-		print("Detective Dead")
+		print(Fore.RED + "Detective Dead")
 	print("\n\n\n")
 		
 	
@@ -133,27 +157,23 @@ def newday():
 	global detmafia
 	global checked
 	
-	print(f'Day {nights}')
+	print(Fore.WHITE + f'Day {nights}')
 
 	# Lynch Time!
 	if detmafia != "N/A":
-		print(f'Lynched: {detmafia.role} From Det Info')
+		print(Fore.GREEN + f'Lynched: {detmafia.role} From Det Info')
 		detmafia.status = "Dead"
 	else:
 		lynch = players[random.randint(0,18)]
-		while lynch.status == "Dead":
+		while lynch.status == "Dead" or lynch.saved == True:
 			lynch = players[random.randint(0,18)]
 		lynch.status = "Dead"
+		if lynch.role == "Godfather" or lynch.role == "Mafia":
+			print(Fore.GREEN)
+		else:
+			print(Fore.RED)
 		print(f'Lynched: {lynch.role} From Random Lynch')
-	print("\n\n\n")
+	print("\n\n\n\n")
 
-	
-reset()
-for i in range(15):
-	newnight()
-	wincheck()
-	newday()
-	wincheck()
-	if verbose:
-		input("Press Enter to Progress")
-os._exit(1)
+if __name__ == "__main__":
+    main()
