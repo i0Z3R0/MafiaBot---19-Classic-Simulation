@@ -4,20 +4,41 @@ from colorama import *
 
 
 def main():
-	games = []	
+	global finished
+	games = []
+	vilwins = 0
+	mafwins = 0
+	nowins = 0
+	final = ""
 	
-	reset()
-	
-	
-	for i in range(15):
-		newnight()
-		wincheck()
-		newday()
-		wincheck()
-		if verbose:
-			input("Press Enter to Progress")
-			os.system('clear')
-	
+	for i in range(100):
+		reset()
+		gameresult = game()
+		games.append(gameresult)
+
+	for i in range(len(games)):
+		if games[i].winner == "Villagers":
+			vilwins += 1
+		elif games[i].winner == "Mafias":
+			mafwins += 1
+		elif games[i].winner == "None":
+			nowins += 1
+		else:
+			print("Undetermined Winner: " + games[i].winner)
+			os._exit(1)
+		gamestr = Fore.GREEN + f"""Game {i + 1}: 
+Winner: {games[i].winner}
+Nights: {games[i].nights}
+Villagers Alive: {games[i].vilalive}
+Mafias Alive: {games[i].mafalive}
+
+"""
+		final += (gamestr)
+		
+	print(final)
+	print(Fore.YELLOW + "Village Wins: " + str(vilwins))
+	print(Fore.YELLOW + "Mafia Wins: " + str(mafwins))
+	print(Fore.YELLOW + "No Wins: " + str(nowins))
 	os._exit(1)
 
 class Game:
@@ -37,6 +58,22 @@ class Player:
 #for i in players:
 #	print(i.role + ": " + i.status)
 
+def game():
+	for i in range(15):
+		finished = False
+		if finished == False:
+			newnight()
+			if wincheck():
+				return wincheck()
+			newday()
+			if wincheck():
+				return wincheck()
+			if verbose:
+				input("Press Enter to Progress")
+				os.system('clear')
+	current = status()
+	return Game("None", nights, current["vilcount"], current["mafcount"])
+
 def reset():
 	global players
 	global nights
@@ -45,7 +82,7 @@ def reset():
 	players = []
 	nights = 1
 	detmafia = "N/A"
-	verbose = True
+	verbose = False
 
 	players.append(Player("Godfather", "Mafia", "Alive", False))
 	players.append(Player("Mafia", "Mafia", "Alive", False))
@@ -78,19 +115,21 @@ Mafias Alive: {mafcount}
 
 def wincheck():
 	global nights
+	global finished
 	current = status()
-	mafcount = current["mafcount"]
-	vilcount = current["vilcount"]
-	if mafcount >= vilcount:
+	if current["mafcount"] >= current["vilcount"]:
 		print(Fore.RED + "Mafias Win!\n")
 		print(current["text"])
-		os._exit(1)
-	elif mafcount == 0:
+		finished = True
+		return Game("Mafias", nights, current["vilcount"], current["mafcount"])
+	elif current["mafcount"] == 0:
 		print(Fore.GREEN + "Villagers Win!\n")
 		print(current["text"])
-		os._exit(1)
+		finished = True
+		return Game("Villagers", nights, current["vilcount"], current["mafcount"])
 	else:
 		print(Fore.YELLOW + "No Winners Yet!\n")
+		return False
 		#print(current["text"])
 			
 	
